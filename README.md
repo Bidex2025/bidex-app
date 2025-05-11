@@ -1,0 +1,1 @@
+# Bidex - Full Stack Application Package\n\nThis package contains the source code for the Bidex platform, including the Frontend (Next.js) and Backend (NestJS).\n\nRefer to README.ar.md for detailed setup instructions in Arabic.

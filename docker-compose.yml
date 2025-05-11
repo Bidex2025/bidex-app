@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bidex_backend
+    restart: unless-stopped
+    env_file:
+      - .env # Load environment variables from .env file in the root
+    ports:
+      # Map host port (e.g., 3000) to container port 3000
+      # Use ${BACKEND_PORT:-3000} to allow overriding via .env
+      - "${BACKEND_PORT:-3000}:3000"
+    volumes:
+      # Persist the SQLite database file outside the container
+      - ./backend/bidex_db:/usr/src/app/bidex_db
+    networks:
+      - bidex-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bidex_frontend
+    restart: unless-stopped
+    ports:
+      # Map host port (e.g., 3001) to container port 3000 (Next.js default)
+      # Use ${FRONTEND_PORT:-3001} to allow overriding via .env
+      - "${FRONTEND_PORT:-3001}:3000"
+    environment:
+      # Point to the backend service accessible from the host machine
+      # Assumes backend is running on localhost:BACKEND_PORT
+      # Important: This needs to be the URL accessible *from the user's browser*,
+      # not necessarily the internal Docker network name.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000}
+    depends_on:
+      - backend
+    networks:
+      - bidex-network
+
+networks:
+  bidex-network:
+    driver: bridge
+
